@@ -28,8 +28,8 @@ messaging.onBackgroundMessage((payload) => {
 });
 
 // Cache pour le mode offline (optionnel mais utile)
-const CACHE_NAME = 'courses-duo-v1';
-const CACHE_URLS = ['/', '/index.html', '/manifest.json'];
+const CACHE_NAME = 'courses-duo-v2';
+const CACHE_URLS = ['/courses/', '/courses/index.html', '/courses/manifest.json'];
 
 self.addEventListener('install', (e) => {
     e.waitUntil(
@@ -48,8 +48,19 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-    // On laisse passer les requêtes Firebase, on cache seulement les assets
-    if (e.request.url.includes('firestore') || e.request.url.includes('googleapis')) return;
+    const url = e.request.url;
+
+    // Ne JAMAIS intercepter Firebase/Firestore/Google — laisser passer direct
+    if (
+        url.includes('firestore.googleapis.com') ||
+        url.includes('firebase') ||
+        url.includes('googleapis.com') ||
+        url.includes('gstatic.com') ||
+        url.includes('google.com') ||
+        e.request.method !== 'GET'
+    ) return;
+
+    // Cache uniquement les assets statiques (html, css, fonts, icons)
     e.respondWith(
         caches.match(e.request).then(cached => cached || fetch(e.request))
     );

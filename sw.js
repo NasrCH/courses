@@ -20,8 +20,8 @@ messaging.onBackgroundMessage((payload) => {
     const { title, body } = payload.notification;
     self.registration.showNotification(title || '🛒 Courses Duo', {
         body: body || 'Nouvelle mise à jour de la liste',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        icon: '/courses/icons/icon-192.png',
+        badge: '/courses/icons/icon-192.png',
         vibrate: [200, 100, 200],
         data: payload.data
     });

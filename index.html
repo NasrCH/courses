@@ -196,7 +196,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy,
-                 updateDoc, doc, deleteDoc, writeBatch, serverTimestamp, setDoc }
+                 updateDoc, doc, deleteDoc, writeBatch, serverTimestamp, setDoc, enableNetwork }
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getMessaging, getToken, onMessage }
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
@@ -252,9 +252,36 @@
         };
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/courses/sw.js').catch(err => {
+            navigator.serviceWorker.register('/courses/sw.js').then(async (reg) => {
+                console.log('[SW] Enregistré:', reg.scope);
+                // ✅ Auto-enregistrement du token FCM si la permission est déjà accordée
+                if (Notification.permission === 'granted') {
+                    await registerFCMToken();
+                }
+            }).catch(err => {
                 console.warn('SW registration failed:', err);
             });
+        }
+
+        // ---- ENREGISTREMENT TOKEN FCM (partagé) ----
+        async function registerFCMToken() {
+            try {
+                const swReg = await navigator.serviceWorker.ready;
+                const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+                if (token) {
+                    await setDoc(doc(db, "fcm_tokens", deviceId), {
+                        token: token,
+                        deviceId: deviceId,
+                        updatedAt: serverTimestamp()
+                    });
+                    localStorage.setItem('fcm_token', token);
+                    console.log('[FCM] Token enregistré:', token);
+                    return true;
+                }
+            } catch (err) {
+                console.error('[FCM] Erreur enregistrement token:', err);
+            }
+            return false;
         }
 
         // ---- NOTIFICATIONS FCM ----
@@ -264,26 +291,9 @@
             const permission = await Notification.requestPermission();
             if (permission !== 'granted') { showToast("Notifs refusées 😕"); return; }
 
-            try {
-                const swReg = await navigator.serviceWorker.ready;
-                const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
-                if (token) {
-                    // ✅ Sauvegarder le token dans Firestore pour l'envoi cross-device
-                    await setDoc(doc(db, "fcm_tokens", deviceId), {
-                        token: token,
-                        deviceId: deviceId,
-                        updatedAt: serverTimestamp()
-                    });
-                    localStorage.setItem('fcm_token', token);
-                    console.log('FCM Token enregistré:', token);
-                    updateNotifBtn('granted');
-                    showToast("Notifications activées 🔔");
-                }
-            } catch (err) {
-                console.error('FCM error:', err);
-                updateNotifBtn('granted');
-                showToast("Notifications activées 🔔");
-            }
+            const ok = await registerFCMToken();
+            updateNotifBtn('granted');
+            showToast(ok ? "Notifications activées 🔔" : "Notifs activées (token en attente)");
         };
 
         function updateNotifBtn(permission) {
@@ -499,6 +509,14 @@
 
         window.addEventListener('load', () => {
             if ("Notification" in window) updateNotifBtn(Notification.permission);
+        });
+
+        // ✅ Reconnecter Firestore quand l'app revient au premier plan (après arrière-plan mobile)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                console.log('[Firestore] App revenue au premier plan — reconnexion réseau');
+                enableNetwork(db).catch(() => {});
+            }
         });
     </script>
 </head>

@@ -127,6 +127,12 @@
         }
         .btn-del-cat:hover { background: rgba(255,50,50,0.3); color: white; }
 
+        .btn-clear-cat {
+            background: rgba(255,255,255,0.1); border: none; border-radius: 8px;
+            color: rgba(255,255,255,0.5); cursor: pointer; padding: 4px 8px; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .btn-clear-cat:hover { background: rgba(255,200,50,0.25); color: white; }
+
         .items-list { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
         .category-block.collapsed .items-list,
         .category-block.collapsed .add-item-bar { display: none; }
@@ -267,14 +273,31 @@
             showToast(`Catégorie "${name}" ajoutée ✓`);
         };
 
-        window.deleteCategory = async (catName) => {
+        window.deleteCategory = async (catName, isLegacy) => {
             if (!confirm(`Supprimer "${catName}" et tous ses articles ?`)) return;
             const batch = writeBatch(db);
-            allDocs
-                .filter(d => (d.type === 'category' && d.name === catName) || (d.type === 'item' && d.category === catName))
-                .forEach(d => batch.delete(doc(db, "courses", d.id)));
+            if (isLegacy) {
+                // Supprimer les anciens docs sans type
+                allDocs.filter(d => !d.type).forEach(d => batch.delete(doc(db, "courses", d.id)));
+            } else {
+                allDocs
+                    .filter(d => (d.type === 'category' && d.name === catName) || (d.type === 'item' && d.category === catName))
+                    .forEach(d => batch.delete(doc(db, "courses", d.id)));
+            }
             await batch.commit();
             showToast('Catégorie supprimée');
+        };
+
+        window.clearChecked = async (catName, isLegacy) => {
+            const targets = isLegacy
+                ? allDocs.filter(d => !d.type && d.checked)
+                : allDocs.filter(d => d.type === 'item' && d.category === catName && d.checked);
+            if (targets.length === 0) { showToast('Aucun article coché 😊'); return; }
+            if (!confirm(`Supprimer ${targets.length} article(s) coché(s) ?`)) return;
+            const batch = writeBatch(db);
+            targets.forEach(d => batch.delete(doc(db, "courses", d.id)));
+            await batch.commit();
+            showToast(`${targets.length} article(s) supprimé(s) ✓`);
         };
 
         window.toggleCategory = (catName) => {
@@ -317,14 +340,14 @@
 
             container.innerHTML = '';
 
-            if (legacyItems.length > 0) renderBlock(container, '📦 DIVERS', legacyItems, false);
+            if (legacyItems.length > 0) renderBlock(container, '📦 DIVERS', legacyItems, true, true);
             categories.forEach(cat => {
                 const items = allDocs.filter(d => d.type === 'item' && d.category === cat.name);
-                renderBlock(container, cat.name, items, true);
+                renderBlock(container, cat.name, items, true, false);
             });
         }
 
-        function renderBlock(container, catName, items, deletable) {
+        function renderBlock(container, catName, items, deletable, isLegacy) {
             const safeId = catName.replace(/\s+/g, '_');
             const checked = items.filter(i => i.checked).length;
             const total = items.length;
@@ -341,7 +364,8 @@
                         <span class="category-count">${checked}/${total}</span>
                     </div>
                     <div class="category-actions">
-                        ${deletable ? `<button class="btn-del-cat" onclick="event.stopPropagation(); deleteCategory('${catName}')">✕</button>` : ''}
+                        ${deletable ? `<button class="btn-clear-cat" onclick="event.stopPropagation(); clearChecked('${catName}', ${isLegacy})" title="Supprimer les cochés">🧹</button>` : ''}
+                        ${deletable ? `<button class="btn-del-cat" onclick="event.stopPropagation(); deleteCategory('${catName}', ${isLegacy})">✕</button>` : ''}
                         <span class="toggle-icon">▾</span>
                     </div>
                 </div>

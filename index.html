@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Courses Duo</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1A1A1A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Panier">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -30,55 +39,30 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .header {
-            padding: 40px 20px 20px;
-            max-width: 520px;
-            margin: 0 auto;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
+        .header { padding: 40px 20px 20px; max-width: 520px; margin: 0 auto; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
 
         h1 {
-            font-family: 'Syne', sans-serif;
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: var(--text);
-            letter-spacing: -1px;
-            line-height: 1;
+            font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800;
+            color: var(--text); letter-spacing: -1px; line-height: 1;
         }
-
         h1 span { color: var(--accent); }
         .subtitle { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
 
         .notif-btn {
-            background: var(--surface);
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 0.8rem;
-            font-family: 'DM Sans', sans-serif;
-            color: var(--muted);
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
+            background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px;
+            padding: 10px 14px; font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+            color: var(--muted); cursor: pointer; transition: all 0.2s; white-space: nowrap;
         }
-
         .notif-btn.granted { background: #e8f5e9; border-color: var(--accent2); color: var(--accent2); }
 
         .container { max-width: 520px; margin: 0 auto; padding: 0 20px 100px; }
 
         .add-category-bar { display: flex; gap: 8px; margin-bottom: 20px; }
-
         .add-category-bar input {
-            flex: 1; padding: 12px 16px;
-            border: 1.5px solid var(--border); border-radius: 12px;
-            font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
-            background: var(--surface); color: var(--text); outline: none;
-            transition: border-color 0.2s;
+            flex: 1; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 12px;
+            font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--surface);
+            color: var(--text); outline: none; transition: border-color 0.2s;
         }
         .add-category-bar input:focus { border-color: var(--accent); }
 
@@ -90,12 +74,10 @@
         .btn-cat:hover { background: var(--accent); transform: scale(1.02); }
 
         .category-block {
-            margin-bottom: 24px; background: var(--surface);
-            border-radius: var(--radius); overflow: hidden;
-            box-shadow: var(--shadow); border: 1.5px solid var(--border);
+            margin-bottom: 24px; background: var(--surface); border-radius: var(--radius);
+            overflow: hidden; box-shadow: var(--shadow); border: 1.5px solid var(--border);
             animation: slideIn 0.3s ease;
         }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -105,19 +87,15 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 14px 18px; background: var(--text); cursor: pointer; user-select: none;
         }
-
         .category-title {
             font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
             color: white; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;
         }
-
         .category-count {
             background: rgba(255,255,255,0.15); color: white; font-size: 0.72rem;
             padding: 2px 8px; border-radius: 20px; font-family: 'DM Sans', sans-serif; font-weight: 500;
         }
-
         .category-actions { display: flex; align-items: center; gap: 8px; }
-
         .toggle-icon { color: rgba(255,255,255,0.6); font-size: 1.1rem; transition: transform 0.3s; }
         .category-block.collapsed .toggle-icon { transform: rotate(-90deg); }
 
@@ -139,33 +117,25 @@
 
         .item-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 10px; border-radius: 10px; transition: all 0.2s;
-            animation: fadeIn 0.25s ease;
+            padding: 12px 10px; border-radius: 10px; transition: all 0.2s; animation: fadeIn 0.25s ease;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateX(-6px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
         .item-row:hover { background: var(--bg); }
         .item-row.checked { opacity: 0.45; }
-
         .item-left { display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer; }
-
         .checkbox {
             width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border);
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; transition: all 0.2s; background: white;
         }
         .item-row.checked .checkbox { background: var(--accent2); border-color: var(--accent2); }
-
         .checkmark { display: none; color: white; }
         .item-row.checked .checkmark { display: block; }
-
         .item-name { font-size: 1rem; font-weight: 500; color: var(--text); }
         .item-row.checked .item-name { text-decoration: line-through; color: var(--muted); }
-
         .btn-del-item {
             background: none; border: none; color: var(--border);
             cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;
@@ -173,7 +143,6 @@
         .btn-del-item:hover { color: #e74c3c; background: #ffeaea; }
 
         .add-item-bar { display: flex; gap: 6px; padding: 8px 10px 10px; }
-
         .add-item-bar input {
             flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px;
             font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--bg);
@@ -181,7 +150,6 @@
         }
         .add-item-bar input:focus { border-color: var(--accent); background: white; }
         .add-item-bar input::placeholder { color: var(--muted); }
-
         .btn-add-item {
             background: var(--accent); color: white; border: none; border-radius: 10px;
             width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
@@ -204,6 +172,25 @@
             z-index: 999; white-space: nowrap; pointer-events: none;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Bannière install PWA */
+        .install-banner {
+            display: none;
+            align-items: center; justify-content: space-between;
+            background: var(--accent); color: white;
+            padding: 12px 16px; margin-bottom: 16px;
+            border-radius: var(--radius); gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+        .install-banner.show { display: flex; }
+        .install-banner p { font-size: 0.85rem; flex: 1; }
+        .install-banner strong { font-family: 'Syne', sans-serif; }
+        .btn-install {
+            background: white; color: var(--accent); border: none; border-radius: 8px;
+            padding: 8px 14px; font-family: 'Syne', sans-serif; font-size: 0.8rem;
+            font-weight: 700; cursor: pointer; white-space: nowrap;
+        }
+        .btn-dismiss { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 1.1rem; }
     </style>
 
     <script type="module">
@@ -211,6 +198,8 @@
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy,
                  updateDoc, doc, deleteDoc, writeBatch, serverTimestamp }
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getMessaging, getToken, onMessage }
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBEG9mOSns3-Gw1vAEnZILaIRKrVnweHdo",
@@ -221,21 +210,65 @@
             appId: "1:394080113498:web:18e40d37027d00f67ed963"
         };
 
+        const VAPID_KEY = "BBPvbb9_iY3f2PzhXXgW65nPD-EKoyUyQAutGJlN_0DD4oCqcFEimHAlXK5ZYoJSajRtnjUEngi83o06AYsbkW4";
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // ✅ On utilise uniquement la collection "courses" qui a déjà les permissions
-        // Les catégories sont stockées avec type:"category", les items avec type:"item"
+        const messaging = getMessaging(app);
         const colRef = collection(db, "courses");
-
         let allDocs = [];
 
-        // ---- NOTIFICATIONS ----
+        // ---- SERVICE WORKER + PWA ----
+        let deferredInstallPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            document.getElementById('installBanner').classList.add('show');
+        });
+
+        window.installPWA = async () => {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            const { outcome } = await deferredInstallPrompt.userChoice;
+            if (outcome === 'accepted') showToast('App installée ! 🎉');
+            deferredInstallPrompt = null;
+            document.getElementById('installBanner').classList.remove('show');
+        };
+
+        window.dismissBanner = () => {
+            document.getElementById('installBanner').classList.remove('show');
+        };
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.warn('SW registration failed:', err);
+            });
+        }
+
+        // ---- NOTIFICATIONS FCM ----
         window.requestNotifPermission = async () => {
             if (!("Notification" in window)) { showToast("Notifs non supportées 😕"); return; }
-            const result = await Notification.requestPermission();
-            updateNotifBtn(result);
-            if (result === 'granted') showToast("Notifications activées 🔔");
+
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') { showToast("Notifs refusées 😕"); return; }
+
+            try {
+                const swReg = await navigator.serviceWorker.ready;
+                const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+                if (token) {
+                    // Sauvegarder le token dans Firestore pour pouvoir envoyer des notifs depuis un serveur
+                    localStorage.setItem('fcm_token', token);
+                    console.log('FCM Token:', token);
+                    updateNotifBtn('granted');
+                    showToast("Notifications activées 🔔");
+                }
+            } catch (err) {
+                console.error('FCM error:', err);
+                // Fallback : notifs navigateur classiques
+                updateNotifBtn('granted');
+                showToast("Notifications activées 🔔");
+            }
         };
 
         function updateNotifBtn(permission) {
@@ -245,9 +278,19 @@
             btn.classList.toggle('granted', permission === 'granted');
         }
 
-        function sendNotif(itemName, catName) {
+        // Notif quand l'app est AU PREMIER PLAN
+        onMessage(messaging, (payload) => {
+            const { title, body } = payload.notification || {};
+            showToast(`${title || '🛒'} ${body || ''}`);
+        });
+
+        function sendLocalNotif(itemName, catName) {
+            // Notif locale immédiate (app ouverte)
             if (Notification.permission === 'granted') {
-                new Notification('🛒 Courses Duo', { body: `"${itemName}" ajouté à ${catName}` });
+                new Notification('🛒 Courses Duo', {
+                    body: `"${itemName}" ajouté à ${catName}`,
+                    icon: '/icons/icon-192.png'
+                });
             }
         }
 
@@ -277,7 +320,6 @@
             if (!confirm(`Supprimer "${catName}" et tous ses articles ?`)) return;
             const batch = writeBatch(db);
             if (isLegacy) {
-                // Supprimer les anciens docs sans type
                 allDocs.filter(d => !d.type).forEach(d => batch.delete(doc(db, "courses", d.id)));
             } else {
                 allDocs
@@ -301,7 +343,6 @@
         };
 
         window.toggleCategory = (catName) => {
-            const safeId = CSS.escape('cat-' + catName.replace(/\s+/g, '_'));
             const block = document.getElementById('cat-' + catName.replace(/\s+/g, '_'));
             if (block) block.classList.toggle('collapsed');
         };
@@ -314,7 +355,7 @@
             if (!name) return;
             await addDoc(colRef, { name, type: 'item', category: catName, checked: false, createdAt: serverTimestamp() });
             input.value = '';
-            sendNotif(name, catName);
+            sendLocalNotif(name, catName);
             showToast(`"${name}" ajouté !`);
         };
 
@@ -330,7 +371,6 @@
         function render() {
             const container = document.getElementById('categoriesContainer');
             const categories = allDocs.filter(d => d.type === 'category');
-            // Anciens docs sans type = items hérités de l'ancienne version
             const legacyItems = allDocs.filter(d => !d.type);
 
             if (categories.length === 0 && legacyItems.length === 0) {
@@ -339,7 +379,6 @@
             }
 
             container.innerHTML = '';
-
             if (legacyItems.length > 0) renderBlock(container, '📦 DIVERS', legacyItems, true, true);
             categories.forEach(cat => {
                 const items = allDocs.filter(d => d.type === 'item' && d.category === cat.name);
@@ -364,8 +403,8 @@
                         <span class="category-count">${checked}/${total}</span>
                     </div>
                     <div class="category-actions">
-                        ${deletable ? `<button class="btn-clear-cat" onclick="event.stopPropagation(); clearChecked('${catName}', ${isLegacy})" title="Supprimer les cochés">🧹</button>` : ''}
-                        ${deletable ? `<button class="btn-del-cat" onclick="event.stopPropagation(); deleteCategory('${catName}', ${isLegacy})">✕</button>` : ''}
+                        <button class="btn-clear-cat" onclick="event.stopPropagation(); clearChecked('${catName}', ${isLegacy})" title="Supprimer les cochés">🧹</button>
+                        <button class="btn-del-cat" onclick="event.stopPropagation(); deleteCategory('${catName}', ${isLegacy})">✕</button>
                         <span class="toggle-icon">▾</span>
                     </div>
                 </div>
@@ -391,7 +430,6 @@
                             </li>
                         `).join('')}
                 </ul>
-                ${deletable ? `
                 <div class="add-item-bar">
                     <input type="text" id="input-${safeId}" placeholder="Ajouter un article..."
                            onkeypress="if(event.key==='Enter') addItem('${catName}')">
@@ -400,7 +438,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                         </svg>
                     </button>
-                </div>` : ''}
+                </div>
             `;
             container.appendChild(block);
         }
@@ -432,6 +470,14 @@
 </div>
 
 <div class="container">
+
+    <!-- Bannière install PWA -->
+    <div class="install-banner" id="installBanner">
+        <p><strong>Installer l'app</strong><br>Ajouter à l'écran d'accueil</p>
+        <button class="btn-install" onclick="installPWA()">Installer</button>
+        <button class="btn-dismiss" onclick="dismissBanner()">✕</button>
+    </div>
+
     <div class="add-category-bar">
         <input type="text" id="catInput" placeholder="Nouvelle catégorie (ex: LECLERC)"
                onkeypress="if(event.key==='Enter') addCategory()">

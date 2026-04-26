@@ -241,7 +241,7 @@
         };
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(err => {
+            navigator.serviceWorker.register('/courses/sw.js').catch(err => {
                 console.warn('SW registration failed:', err);
             });
         }
@@ -289,7 +289,7 @@
             if (Notification.permission === 'granted') {
                 new Notification('🛒 Courses Duo', {
                     body: `"${itemName}" ajouté à ${catName}`,
-                    icon: '/icons/icon-192.png'
+                    icon: '/courses/icons/icon-192.png'
                 });
             }
         }

@@ -1,0 +1,28 @@
+# Dépendances Node
+node_modules/
+
+# Fichiers secrets — NE JAMAIS commiter !
+*.json.secret
+service-account*.json
+*-service-account.json
+.env
+.env.*
+
+# Wrangler (Cloudflare CLI) — cache local, pas de code utile
+.wrangler/
+cloudflare-worker/.wrangler/
+# wrangler.jsonc auto-généré à la racine (pas notre config Worker)
+wrangler.jsonc
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+

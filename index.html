@@ -196,7 +196,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy,
-                 updateDoc, doc, deleteDoc, writeBatch, serverTimestamp }
+                 updateDoc, doc, deleteDoc, writeBatch, serverTimestamp, setDoc }
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getMessaging, getToken, onMessage }
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
@@ -212,11 +212,22 @@
 
         const VAPID_KEY = "BBPvbb9_iY3f2PzhXXgW65nPD-EKoyUyQAutGJlN_0DD4oCqcFEimHAlXK5ZYoJSajRtnjUEngi83o06AYsbkW4";
 
+        // ✅ URL du Cloudflare Worker — à mettre à jour après déploiement
+        // Ex : "https://courses-duo-notifications.TON_COMPTE.workers.dev"
+        const WORKER_URL = "https://courses-duo.misfit-game.workers.dev";
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const messaging = getMessaging(app);
         const colRef = collection(db, "courses");
         let allDocs = [];
+
+        // ---- DEVICE ID unique par appareil ----
+        let deviceId = localStorage.getItem('deviceId');
+        if (!deviceId) {
+            deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            localStorage.setItem('deviceId', deviceId);
+        }
 
         // ---- SERVICE WORKER + PWA ----
         let deferredInstallPrompt = null;
@@ -257,15 +268,19 @@
                 const swReg = await navigator.serviceWorker.ready;
                 const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
                 if (token) {
-                    // Sauvegarder le token dans Firestore pour pouvoir envoyer des notifs depuis un serveur
+                    // ✅ Sauvegarder le token dans Firestore pour l'envoi cross-device
+                    await setDoc(doc(db, "fcm_tokens", deviceId), {
+                        token: token,
+                        deviceId: deviceId,
+                        updatedAt: serverTimestamp()
+                    });
                     localStorage.setItem('fcm_token', token);
-                    console.log('FCM Token:', token);
+                    console.log('FCM Token enregistré:', token);
                     updateNotifBtn('granted');
                     showToast("Notifications activées 🔔");
                 }
             } catch (err) {
                 console.error('FCM error:', err);
-                // Fallback : notifs navigateur classiques
                 updateNotifBtn('granted');
                 showToast("Notifications activées 🔔");
             }
@@ -278,19 +293,27 @@
             btn.classList.toggle('granted', permission === 'granted');
         }
 
-        // Notif quand l'app est AU PREMIER PLAN
+        // Notif quand l'app est AU PREMIER PLAN (FCM)
         onMessage(messaging, (payload) => {
             const { title, body } = payload.notification || {};
             showToast(`${title || '🛒'} ${body || ''}`);
         });
 
-        function sendLocalNotif(itemName, catName) {
-            // Notif locale immédiate (app ouverte)
-            if (Notification.permission === 'granted') {
-                new Notification('🛒 Courses Duo', {
-                    body: `"${itemName}" ajouté à ${catName}`,
-                    icon: '/courses/icons/icon-192.png'
+        // ✅ Notification via Service Worker (compatible mobile, foreground & background)
+        async function notifyViaServiceWorker(itemName, catName) {
+            if (Notification.permission !== 'granted') return;
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                await reg.showNotification('🛒 Courses Duo', {
+                    body: `"${itemName}" ajouté dans ${catName}`,
+                    icon: '/courses/icons/icon-192.png',
+                    badge: '/courses/icons/icon-192.png',
+                    vibrate: [200, 100, 200],
+                    tag: 'courses-update',
+                    renotify: true
                 });
+            } catch (err) {
+                console.warn('showNotification error:', err);
             }
         }
 
@@ -353,10 +376,19 @@
             const input = document.getElementById('input-' + safeId);
             const name = input.value.trim();
             if (!name) return;
-            await addDoc(colRef, { name, type: 'item', category: catName, checked: false, createdAt: serverTimestamp() });
+            // ✅ On enregistre le deviceId pour savoir qui a ajouté l'article
+            await addDoc(colRef, { name, type: 'item', category: catName, checked: false, createdAt: serverTimestamp(), deviceId: deviceId });
             input.value = '';
-            sendLocalNotif(name, catName);
             showToast(`"${name}" ajouté !`);
+
+            // ✅ Notifier les autres appareils via Cloudflare Worker (app fermée incluse)
+            if (WORKER_URL) {
+                fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ itemName: name, catName, senderDeviceId: deviceId })
+                }).catch(err => console.warn('Worker notification error:', err));
+            }
         };
 
         window.toggleItem = async (id, status) => {
@@ -445,8 +477,23 @@
 
         // ---- SYNC ----
         const q = query(colRef, orderBy("createdAt", "asc"));
+        let knownIds = null; // null = premier chargement (on ne notifie pas les items existants)
+
         onSnapshot(q, (snapshot) => {
-            allDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            const newDocs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            if (knownIds !== null) {
+                // ✅ Détecter les nouveaux articles ajoutés par l'AUTRE appareil
+                newDocs.forEach(d => {
+                    if (d.type === 'item' && !knownIds.has(d.id) && d.deviceId !== deviceId) {
+                        notifyViaServiceWorker(d.name, d.category || 'la liste');
+                        showToast(`🛒 "${d.name}" ajouté par l'autre`);
+                    }
+                });
+            }
+
+            knownIds = new Set(newDocs.map(d => d.id));
+            allDocs = newDocs;
             render();
         });
 

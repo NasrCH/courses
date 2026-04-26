@@ -4,13 +4,390 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Courses Duo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #F5F2EE;
+            --surface: #FFFFFF;
+            --accent: #E85D26;
+            --accent-light: #FDF0EA;
+            --accent2: #2D6A4F;
+            --text: #1A1A1A;
+            --muted: #9A9488;
+            --border: #E8E2DA;
+            --shadow: 0 4px 24px rgba(0,0,0,0.07);
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* HEADER */
+        .header {
+            padding: 40px 20px 20px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        h1 span { color: var(--accent); }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .notif-btn {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .notif-btn.granted {
+            background: #e8f5e9;
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        .notif-btn:hover { transform: scale(1.02); }
+
+        /* MAIN CONTENT */
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 0 20px 100px;
+        }
+
+        /* ADD CATEGORY */
+        .add-category-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .add-category-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            background: var(--surface);
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .add-category-bar input:focus { border-color: var(--accent); }
+
+        .btn-cat {
+            background: var(--text);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-cat:hover { background: var(--accent); transform: scale(1.02); }
+
+        /* CATEGORY BLOCK */
+        .category-block {
+            margin-bottom: 24px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1.5px solid var(--border);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: var(--text);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .category-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-count {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+        }
+
+        .category-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-icon {
+            color: rgba(255,255,255,0.6);
+            font-size: 1.1rem;
+            transition: transform 0.3s;
+        }
+
+        .category-block.collapsed .toggle-icon { transform: rotate(-90deg); }
+
+        .btn-del-cat {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-del-cat:hover { background: rgba(255,50,50,0.3); color: white; }
+
+        /* ITEMS LIST */
+        .items-list {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .category-block.collapsed .items-list,
+        .category-block.collapsed .add-item-bar {
+            display: none;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 10px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-6px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .item-row:hover { background: var(--bg); }
+
+        .item-row.checked { opacity: 0.45; }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .checkbox {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .item-row.checked .checkbox {
+            background: var(--accent2);
+            border-color: var(--accent2);
+        }
+
+        .checkmark {
+            display: none;
+            color: white;
+        }
+
+        .item-row.checked .checkmark { display: block; }
+
+        .item-name {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .item-row.checked .item-name {
+            text-decoration: line-through;
+            color: var(--muted);
+        }
+
+        .btn-del-item {
+            background: none;
+            border: none;
+            color: var(--border);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-del-item:hover { color: #e74c3c; background: #ffeaea; }
+
+        /* ADD ITEM BAR */
+        .add-item-bar {
+            display: flex;
+            gap: 6px;
+            padding: 8px 10px 10px;
+        }
+
+        .add-item-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .add-item-bar input:focus { border-color: var(--accent); background: white; }
+        .add-item-bar input::placeholder { color: var(--muted); }
+
+        .btn-add-item {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn-add-item:hover { background: #c94d1c; transform: scale(1.05); }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-state p { font-size: 0.95rem; }
+
+        /* PROGRESS BAR */
+        .progress-bar-wrap {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 0 18px 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent2);
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--text);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            transition: transform 0.35s cubic-bezier(.17,.67,.35,1.3);
+            z-index: 999;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, deleteDoc, serverTimestamp }
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, deleteDoc, serverTimestamp, getDocs }
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIGURATION FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBEG9mOSns3-Gw1vAEnZILaIRKrVnweHdo",
             authDomain: "misfit-game.firebaseapp.com",
@@ -22,96 +399,216 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const colRef = collection(db, "courses");
+        const categoriesRef = collection(db, "courses_categories");
+        const itemsRef = collection(db, "courses_items");
 
-        // --- FONCTIONS LOGIQUES ---
+        // ---- NOTIFICATIONS ----
+        window.requestNotifPermission = async () => {
+            if (!("Notification" in window)) return;
+            const result = await Notification.requestPermission();
+            updateNotifBtn(result);
+        };
 
-        // Ajouter un article
-        window.addItem = async () => {
-            const input = document.getElementById('itemInput');
-            const text = input.value.trim();
-            if (text) {
-                await addDoc(colRef, {
-                    name: text,
-                    checked: false,
-                    createdAt: serverTimestamp()
-                });
-                input.value = '';
+        function updateNotifBtn(permission) {
+            const btn = document.getElementById('notifBtn');
+            if (!btn) return;
+            if (permission === 'granted') {
+                btn.textContent = '🔔 Notifs activées';
+                btn.classList.add('granted');
+            } else {
+                btn.textContent = '🔕 Activer les notifs';
+                btn.classList.remove('granted');
             }
-        };
+        }
 
-        // Cocher / Décocher
-        window.toggleItem = async (id, status) => {
-            const docRef = doc(db, "courses", id);
-            await updateDoc(docRef, { checked: !status });
-        };
-
-        // Supprimer
-        window.deleteItem = async (id) => {
-            if(confirm("Supprimer cet article ?")) {
-                await deleteDoc(doc(db, "courses", id));
+        function sendNotif(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body, icon: '🛒' });
             }
+        }
+
+        // ---- TOAST ----
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        // ---- CATEGORIES ----
+        window.addCategory = async () => {
+            const input = document.getElementById('catInput');
+            const name = input.value.trim().toUpperCase();
+            if (!name) return;
+            await addDoc(categoriesRef, { name, createdAt: serverTimestamp() });
+            input.value = '';
+            showToast(`Catégorie "${name}" ajoutée`);
         };
 
-        // --- TEMPS RÉEL (SYNC) ---
-        const q = query(colRef, orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const listItems = document.getElementById('listItems');
-            listItems.innerHTML = '';
+        window.deleteCategory = async (catId) => {
+            if (!confirm('Supprimer cette catégorie et tous ses articles ?')) return;
+            // Delete all items of this category
+            const q = query(itemsRef);
+            const snap = await getDocs(q);
+            const deletes = snap.docs
+                .filter(d => d.data().categoryId === catId)
+                .map(d => deleteDoc(doc(db, "courses_items", d.id)));
+            await Promise.all(deletes);
+            await deleteDoc(doc(db, "courses_categories", catId));
+            showToast('Catégorie supprimée');
+        };
 
-            snapshot.forEach((doc) => {
-                const item = doc.data();
-                const id = doc.id;
+        window.toggleCategory = (catId) => {
+            const block = document.querySelector(`[data-cat="${catId}"]`);
+            if (block) block.classList.toggle('collapsed');
+        };
 
-                const li = document.createElement('li');
-                li.className = `flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border transition-all ${item.checked ? 'opacity-50 scale-95' : 'border-indigo-50'}`;
-
-                li.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleItem('${id}', ${item.checked})">
-                        <div class="w-7 h-7 rounded-full border-2 flex items-center justify-center ${item.checked ? 'bg-green-500 border-green-500' : 'border-gray-300'}">
-                            ${item.checked ? '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
-                        </div>
-                        <span class="text-lg font-medium ${item.checked ? 'line-through text-gray-400' : 'text-gray-800'}">${item.name}</span>
-                    </div>
-                    <button onclick="deleteItem('${id}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
-                `;
-                listItems.appendChild(li);
+        // ---- ITEMS ----
+        window.addItem = async (catId, catName) => {
+            const input = document.getElementById(`input-${catId}`);
+            const name = input.value.trim();
+            if (!name) return;
+            await addDoc(itemsRef, {
+                name,
+                categoryId: catId,
+                checked: false,
+                createdAt: serverTimestamp()
             });
+            input.value = '';
+            sendNotif('🛒 Courses Duo', `"${name}" ajouté à ${catName}`);
+            showToast(`"${name}" ajouté !`);
+        };
+
+        window.toggleItem = async (id, status) => {
+            await updateDoc(doc(db, "courses_items", id), { checked: !status });
+        };
+
+        window.deleteItem = async (id) => {
+            await deleteDoc(doc(db, "courses_items", id));
+        };
+
+        // ---- RENDER ----
+        let categories = [];
+        let items = [];
+
+        function render() {
+            const container = document.getElementById('categoriesContainer');
+
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🛒</div>
+                        <p>Aucune catégorie.<br>Commence par en créer une !</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            categories.forEach(cat => {
+                const catItems = items.filter(it => it.categoryId === cat.id);
+                const checkedCount = catItems.filter(i => i.checked).length;
+                const total = catItems.length;
+                const progress = total > 0 ? (checkedCount / total) * 100 : 0;
+
+                const block = document.createElement('div');
+                block.className = 'category-block';
+                block.setAttribute('data-cat', cat.id);
+
+                block.innerHTML = `
+                    <div class="category-header" onclick="toggleCategory('${cat.id}')">
+                        <div class="category-title">
+                            🏪 ${cat.name}
+                            <span class="category-count">${checkedCount}/${total}</span>
+                        </div>
+                        <div class="category-actions">
+                            <button class="btn-del-cat" onclick="event.stopPropagation(); deleteCategory('${cat.id}')">✕</button>
+                            <span class="toggle-icon">▾</span>
+                        </div>
+                    </div>
+                    ${total > 0 ? `
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" style="width:${progress}%"></div>
+                    </div>` : ''}
+                    <ul class="items-list">
+                        ${catItems.length === 0 ? `<li style="padding:10px 12px;color:var(--muted);font-size:0.85rem;">Aucun article — ajoutes-en un !</li>` : ''}
+                        ${catItems.map(item => `
+                            <li class="item-row ${item.checked ? 'checked' : ''}">
+                                <div class="item-left" onclick="toggleItem('${item.id}', ${item.checked})">
+                                    <div class="checkbox">
+                                        <svg class="checkmark" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <span class="item-name">${item.name}</span>
+                                </div>
+                                <button class="btn-del-item" onclick="deleteItem('${item.id}')">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <div class="add-item-bar">
+                        <input type="text" id="input-${cat.id}" placeholder="Ajouter un article..."
+                               onkeypress="if(event.key==='Enter') addItem('${cat.id}','${cat.name}')">
+                        <button class="btn-add-item" onclick="addItem('${cat.id}','${cat.name}')">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(block);
+            });
+        }
+
+        // ---- SYNC ----
+        const qCat = query(categoriesRef, orderBy("createdAt", "asc"));
+        onSnapshot(qCat, snap => {
+            categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            render();
+        });
+
+        const qItems = query(itemsRef, orderBy("createdAt", "asc"));
+        onSnapshot(qItems, snap => {
+            items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            render();
+        });
+
+        // Init notif button
+        window.addEventListener('load', () => {
+            if ("Notification" in window) {
+                updateNotifBtn(Notification.permission);
+            }
         });
     </script>
-
-    <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-900">
+<body>
 
-<div class="max-w-md mx-auto px-4 py-8">
-    <header class="flex justify-between items-end mb-8">
+<div class="header">
+    <div class="header-top">
         <div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-indigo-600">Panier</h1>
-            <p class="text-slate-400 font-medium">Synchronisé avec l7ob ❤️</p>
+            <h1>Pan<span>ier</span></h1>
+            <p class="subtitle">Synchronisé avec l7ob ❤️</p>
         </div>
-        <div class="bg-indigo-100 text-indigo-600 p-2 rounded-xl">🛒</div>
-    </header>
+        <button class="notif-btn" id="notifBtn" onclick="requestNotifPermission()">
+            🔕 Activer les notifs
+        </button>
+    </div>
+</div>
 
-    <div class="sticky top-4 z-10 mb-8">
-        <div class="flex gap-2 p-2 bg-white rounded-2xl shadow-xl shadow-indigo-100/50 border border-indigo-50">
-            <input type="text" id="itemInput" placeholder="Ajouter à la liste..."
-                   class="w-full pl-4 pr-2 py-3 outline-none text-lg bg-transparent"
-                   onkeypress="if(event.key === 'Enter') addItem()">
-            <button onclick="addItem()" class="bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-            </button>
-        </div>
+<div class="container">
+    <div class="add-category-bar">
+        <input type="text" id="catInput" placeholder="Nouvelle catégorie (ex: Leclerc)"
+               onkeypress="if(event.key==='Enter') addCategory()">
+        <button class="btn-cat" onclick="addCategory()">+ CATÉGORIE</button>
     </div>
 
-    <ul id="listItems" class="space-y-4 mb-20">
-    </ul>
+    <div id="categoriesContainer"></div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 </body>
 </html>
